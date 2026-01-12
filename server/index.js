@@ -11,6 +11,8 @@ io.on("connection", (Socket) => {
     const { email, room } = data;
     emailToSocketIdMap.set(email, Socket.id);
     socketidTomailMap.set(Socket.id, email);
-    Socket.to("room:join", data);
+    io.to(room).emit("user:joined", { email, id: Socket.id });
+    Socket.join(room);
+    io.to(Socket.id).emit("room:join", data);
   });
 });
