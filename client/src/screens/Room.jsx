@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSocket } from "../context/socketProvider";
 import peer from "../services/peer";
-import { Form } from "react-router";
 const Room = () => {
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [myStream, setMyStream] = useState();
-  cconst[(remoteStream, setRemoteStream)] = useState();
+  const [remoteStream, setRemoteStream] = useState();
   const socket = useSocket();
 
   const onClickUser = useCallback(async () => {
@@ -16,7 +15,7 @@ const Room = () => {
     const offer = await peer.getOffer();
     socket.emit("user:call", { to: remoteSocketId, offer });
     setMyStream(stream);
-  }, []);
+  }, [socket, remoteSocketId]);
 
   const handleUserJoined = useCallback(({ email, id }) => {
     console.log(`Email ${email} joined room`);
@@ -33,13 +32,13 @@ const Room = () => {
     console.log(`Incoming Call`, from, offer);
     const ans = await peer.getAnswer(offer);
     socket.emit("call:accepted", { to: from, ans });
-  }, []);
+  }, [socket]);
 
   const handleCallAccepted = useCallback(
     ({ from, ans }) => {
       peer.setLocalDescription(ans);
       console.log("Call Accepted!");
-      for (const track of myStream.getStracks()) {
+      for (const track of myStream.getTracks()) {
         peer.peer.addTrack(track, myStream);
       }
     },
@@ -63,7 +62,7 @@ const Room = () => {
       socket.off("incoming:call", handleIncomingCall);
       socket.off("call:accepted", handleCallAccepted);
     };
-  }, [socket, handleUserJoined]);
+  }, [socket, handleUserJoined, handleIncomingCall, handleCallAccepted]);
 
   return (
     <div>
@@ -88,9 +87,8 @@ const Room = () => {
           height="300"
           width="600"
           autoPlay
-          muted
           ref={(video) => {
-            if (video) video.srcObject = myStream;
+            if (video) video.srcObject = remoteStream;
           }}
         />
       )}

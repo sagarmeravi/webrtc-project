@@ -17,9 +17,9 @@ io.on("connection", (Socket) => {
   });
 
   Socket.on("user:call", ({ to, offer }) => {
-    io.to(to).emit("incoming:call", { from: Socket.id });
+    io.to(to).emit("incoming:call", { from: Socket.id, offer });
   });
-  Socket.on("call:accepted", ({ to: from, ans }) => {
+  Socket.on("call:accepted", ({ to, ans }) => {
     io.to(to).emit("call:accepted", { from: Socket.id, ans });
   });
 });
