@@ -29,7 +29,7 @@ export default function Lobby() {
     return () => {
       socket.off("room:join", handlJoinRoom);
     };
-  }, [socket]);
+  }, [socket, handlJoinRoom]);
 
   return (
     <div>
